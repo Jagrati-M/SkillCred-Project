@@ -1,0 +1,604 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>LuxTravel — Book Flights, Trains, Buses, Cabs & Hotels</title>
+
+  <!-- Fonts & icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#edf8f2;
+      --card:#ffffff;
+      --muted:#6b7280;
+      --accent:#0b6b3b;
+      --primary:#0f9d58;
+      --glass: rgba(255,255,255,0.90);
+      --shadow: 0 14px 40px rgba(6,30,12,0.08);
+      --radius:12px;
+      font-family: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,#f7fff7,var(--bg));color:#062e1a;min-height:100vh;-webkit-font-smoothing:antialiased}
+    a{color:inherit;text-decoration:none}
+    button{font-family:inherit}
+
+    /* AUTH / SPLASH */
+    .auth { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:28px;
+      background:
+        linear-gradient(180deg, rgba(11,107,59,0.06), rgba(15,157,88,0.02)),
+        url('https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+    }
+    .auth-card{ width:520px; max-width:96%; background:var(--glass); border-radius:var(--radius); padding:26px; box-shadow:var(--shadow); backdrop-filter: blur(6px); }
+    .brand {display:flex; gap:14px; align-items:center}
+    .logo-mark { width:64px; height:64px; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; background: linear-gradient(180deg,var(--primary),var(--accent)); font-size:22px; }
+    .brand h1{margin:0; font-size:22px; color:var(--accent)}
+    .auth-form{margin-top:14px; display:grid; grid-template-columns:1fr 1fr; gap:10px}
+    .auth-form .full{grid-column:1/-1}
+    input[type="text"], input[type="email"], input[type="password"], input[type="tel"]{ padding:12px; border-radius:10px; border:1px solid rgba(6,40,20,0.06); font-size:14px; outline:none; background:#fff }
+    .auth-actions{display:flex; gap:10px; justify-content:flex-end}
+    .btn{padding:10px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:700}
+    .btn.primary{background:var(--primary);color:#fff}
+    .btn.ghost{background:transparent;border:1px solid rgba(6,40,20,0.06)}
+    .center{ text-align:center }
+    .small{font-size:13px;color:var(--muted)}
+
+    /* APP */
+    .app{display:flex;flex-direction:column;min-height:100vh}
+    .topbar{display:flex;justify-content:space-between;align-items:center;padding:18px 40px}
+    .brand-title{font-weight:800;color:var(--accent);font-size:20px}
+    .nav-actions{display:flex;align-items:center;gap:12px}
+    .user-pill{display:flex;align-items:center;gap:10px;background:#fff;padding:8px 12px;border-radius:999px;box-shadow:0 6px 18px rgba(6,30,12,0.04)}
+    .user-pill .name{font-weight:700;color:#083a24}
+
+    .hero{display:flex;gap:28px;align-items:center;padding:26px 40px;background:linear-gradient(90deg, rgba(11,107,59,0.03), rgba(15,157,88,0.01));border-radius:12px;margin:12px 40px}
+    .hero-left{flex:1}
+    .hero-left h2{margin:0;font-size:30px;color:#083a24}
+    .hero-left p{margin:8px 0;color:var(--muted)}
+    .tabs{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+    .tab{padding:9px 14px;border-radius:999px;border:0;cursor:pointer;font-weight:700;background:transparent;color:var(--accent)}
+    .tab.active{background:linear-gradient(90deg,var(--primary),var(--accent));color:#fff;box-shadow:0 8px 22px rgba(11,107,59,0.12)}
+    .hero-right img{width:460px;height:260px;object-fit:cover;border-radius:12px;box-shadow:var(--shadow)}
+
+    .main{display:grid;grid-template-columns:1fr 380px;gap:24px;padding:22px 40px;align-items:start}
+    .card{background:var(--card);border-radius:12px;padding:16px;box-shadow:var(--shadow)}
+    .search-card{padding:18px}
+
+    .forms{display:block}
+    .form-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    .form-row input, .form-row select{padding:10px;border-radius:8px;border:1px solid #eef7f0;min-width:160px}
+
+    .results{margin-top:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+    .result{border-radius:10px;overflow:hidden;display:flex;flex-direction:column;background:linear-gradient(180deg,#fff,#fcfff9);transition:transform .18s ease, box-shadow .18s ease}
+    .result:hover{transform:translateY(-6px);box-shadow:0 18px 50px rgba(6,30,12,0.12)}
+    .result img{width:100%;height:150px;object-fit:cover}
+    .result-body{padding:12px;display:flex;flex-direction:column;gap:8px}
+    .meta{color:var(--muted);font-size:13px}
+    .price{color:var(--primary);font-weight:900;font-size:18px}
+    .actions{display:flex;gap:8px;margin-top:auto}
+
+    .book-panel{position:fixed;right:20px;top:84px;width:380px;max-height:76vh;overflow:auto;padding:12px;border-radius:12px;background:var(--card);box-shadow:var(--shadow)}
+    .muted-sm{color:var(--muted);font-size:13px}
+
+    .modal{position:fixed;inset:0;background:rgba(6,20,10,0.45);display:none;align-items:center;justify-content:center;padding:18px}
+    .modal.show{display:flex}
+    .modal-card{background:var(--card);border-radius:12px;padding:18px;width:560px;max-width:96%;box-shadow:var(--shadow)}
+
+    footer{padding:18px 40px;color:var(--muted);display:flex;justify-content:space-between;align-items:center}
+
+    @media (max-width:980px){
+      .hero-right img{display:none}
+      .main{grid-template-columns:1fr}
+      .book-panel{display:none}
+      .auth-card{width:95%}
+      .hero{margin:12px}
+      .topbar{padding:12px}
+    }
+  </style>
+</head>
+<body>
+  <!-- ===== AUTH (sign-in) ===== -->
+  <section id="page-auth" class="auth">
+    <div class="auth-card" role="dialog" aria-modal="true">
+      <div class="brand">
+        <div class="logo-mark">LT</div>
+        <div>
+          <h1>LuxTravel</h1>
+          <div class="small muted">Luxury travel booking — demo (front-end)</div>
+        </div>
+      </div>
+
+      <form id="auth-form" class="auth-form" onsubmit="return false" style="margin-top:18px">
+        <input id="fullName" class="full" type="text" placeholder="Full name" required />
+        <input id="phone" type="tel" placeholder="Contact (e.g. +91 98xxxxxxx)" />
+        <input id="emailIn" type="email" placeholder="Email" />
+        <input id="passIn" type="password" placeholder="Password" />
+        <div class="auth-actions full">
+          <button id="demoBtn" class="btn ghost" type="button">Try Demo</button>
+          <button id="signinBtn" class="btn primary" type="button">Sign in / Register</button>
+        </div>
+        <div class="full center small muted" style="margin-top:8px">By continuing you accept the demo Terms & Privacy.</div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===== APP ===== -->
+  <div id="page-app" class="app" style="display:none">
+    <header class="topbar">
+      <div class="brand-title">LuxTravel</div>
+      <div class="nav-actions">
+        <div class="user-pill" title="Signed in user">
+          <i class="fa fa-user" style="color:var(--primary)"></i>
+          <div>
+            <div class="name" id="userName">Guest</div>
+            <div class="small muted" id="userEmail">Not signed in</div>
+          </div>
+        </div>
+        <button id="openBookings" class="btn ghost"><i class="fa fa-suitcase-rolling"></i> My Bookings</button>
+        <button id="signOut" class="btn" style="background:#ef4444;color:#fff"><i class="fa fa-arrow-right-from-bracket"></i> Sign out</button>
+      </div>
+    </header>
+
+    <section class="hero card" style="margin:12px 40px">
+      <div class="hero-left">
+        <h2>Green journeys, luxury comfort</h2>
+        <p class="muted-sm">Search flights, trains, buses, cabs and hotels — curated recommendations with images & prices.</p>
+
+        <div class="tabs" id="serviceTabs" role="tablist" style="margin-top:14px">
+          <button class="tab active" data-service="flights">Flights</button>
+          <button class="tab" data-service="trains">Trains</button>
+          <button class="tab" data-service="buses">Buses</button>
+          <button class="tab" data-service="cabs">Cabs</button>
+          <button class="tab" data-service="hotels">Hotels</button>
+        </div>
+      </div>
+
+      <div class="hero-right">
+        <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1400&q=80" alt="green travel">
+      </div>
+    </section>
+
+    <main class="main">
+      <div class="left">
+        <div class="card search-card">
+          <!-- FORMS: only the active form is visible. Search button triggers recommendations. -->
+          <form id="form-flights" class="forms" onsubmit="return false">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <h3 style="margin:0">Flight Search</h3>
+              <div class="small muted">Enter origin, destination & date</div>
+            </div>
+            <div class="form-row">
+              <input id="flightFrom" type="text" placeholder="From (city or airport)" />
+              <input id="flightTo" type="text" placeholder="To (city or airport)" />
+            </div>
+            <div class="form-row">
+              <input id="flightDate" type="date" />
+              <input id="flightPassengers" type="number" min="1" value="1" style="max-width:120px" />
+              <div style="margin-left:auto">
+                <button class="btn primary" data-service="flights">Search Flights</button>
+              </div>
+            </div>
+          </form>
+
+          <form id="form-trains" class="forms" onsubmit="return false" style="display:none">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <h3 style="margin:0">Train Search</h3>
+              <div class="small muted">Origin, destination & date</div>
+            </div>
+            <div class="form-row">
+              <input id="trainFrom" type="text" placeholder="From (station/city)" />
+              <input id="trainTo" type="text" placeholder="To (station/city)" />
+            </div>
+            <div class="form-row">
+              <input id="trainDate" type="date" />
+              <div style="margin-left:auto">
+                <button class="btn primary" data-service="trains">Search Trains</button>
+              </div>
+            </div>
+          </form>
+
+          <form id="form-buses" class="forms" onsubmit="return false" style="display:none">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <h3 style="margin:0">Bus Search</h3>
+              <div class="small muted">Intercity routes & date</div>
+            </div>
+            <div class="form-row">
+              <input id="busFrom" type="text" placeholder="From (city)" />
+              <input id="busTo" type="text" placeholder="To (city)" />
+            </div>
+            <div class="form-row">
+              <input id="busDate" type="date" />
+              <div style="margin-left:auto">
+                <button class="btn primary" data-service="buses">Search Buses</button>
+              </div>
+            </div>
+          </form>
+
+          <form id="form-cabs" class="forms" onsubmit="return false" style="display:none">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <h3 style="margin:0">Cab Search</h3>
+              <div class="small muted">City, pickup & time</div>
+            </div>
+            <div class="form-row">
+              <input id="cabCity" type="text" placeholder="City" />
+              <input id="cabPickup" type="text" placeholder="Pickup location (optional)" />
+            </div>
+            <div class="form-row">
+              <input id="cabDate" type="date" />
+              <input id="cabTime" type="time" />
+              <div style="margin-left:auto">
+                <button class="btn primary" data-service="cabs">Find Cabs</button>
+              </div>
+            </div>
+          </form>
+
+          <form id="form-hotels" class="forms" onsubmit="return false" style="display:none">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <h3 style="margin:0">Hotel Search</h3>
+              <div class="small muted">City & stay dates</div>
+            </div>
+            <div class="form-row">
+              <input id="hotelCity" type="text" placeholder="City / Location" />
+              <input id="hotelCheckin" type="date" />
+            </div>
+            <div class="form-row">
+              <input id="hotelCheckout" type="date" />
+              <input id="hotelGuests" type="number" min="1" value="1" style="max-width:120px" />
+              <div style="margin-left:auto">
+                <button class="btn primary" data-service="hotels">Search Hotels</button>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <div class="card" style="margin-top:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <h3 style="margin:0" id="resultsTitle">Recommended — Flights</h3>
+            <div class="muted-sm" id="resultsInfo">Search to load curated results (6)</div>
+          </div>
+
+          <div id="results" class="results" style="margin-top:12px">
+            <!-- results injected here -->
+          </div>
+        </div>
+      </div>
+
+      <aside class="right">
+        <div class="card" style="margin-bottom:14px">
+          <h4 style="margin:0">Welcome</h4>
+          <p class="muted-sm" id="welcomeCard">Sign in to save bookings & preferences. Demo uses localStorage.</p>
+        </div>
+
+        <div class="card">
+          <h4 style="margin:0">Featured Destination</h4>
+          <img src="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=800&q=80" alt="destination" style="width:100%;border-radius:8px;margin-top:10px">
+        </div>
+      </aside>
+    </main>
+
+    <!-- Bookings panel -->
+    <aside id="bookingsPanel" class="book-panel" style="display:none">
+      <h3 style="margin-top:0">My Bookings</h3>
+      <div id="bookingsList"></div>
+      <div style="display:flex;justify-content:flex-end;margin-top:8px">
+        <button id="closeBookings" class="btn ghost">Close</button>
+      </div>
+    </aside>
+
+    <!-- Booking Modal -->
+    <div id="modal" class="modal" role="dialog" aria-modal="true">
+      <div class="modal-card">
+        <h3 id="modalTitle">Booking</h3>
+        <div id="modalBody" style="margin-top:10px"></div>
+        <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px">
+          <button id="confirmBtn" class="btn primary">Confirm & Pay</button>
+          <button id="cancelBtn" class="btn ghost">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <div>© <span id="year"></span> LuxTravel — Demo</div>
+      <div class="muted-sm">Front-end demo — integrate backend for production</div>
+    </footer>
+  </div>
+
+  <script>
+    /* ====== Helpers ====== */
+    const $ = s => document.querySelector(s);
+    const $$ = s => Array.from(document.querySelectorAll(s));
+    $('#year').textContent = new Date().getFullYear();
+
+    /* ====== Datasets (names + images) ====== */
+    const NAMES = {
+      flights: ["Indigo 6E","Air India AI","Vistara UK","SpiceJet SG","GoAir G8","AirAsia I5","Alliance Air 9I"],
+      trains: ["Rajdhani Express","Shatabdi Express","Duronto Express","Garib Rath","Tejas Express","Vande Bharat","Sampark Kranti"],
+      buses: ["Volvo AC Sleeper","Deluxe Seater","Executive Volvo","Super Deluxe","Sleeper Coach","Intercity Express","Luxury Coach"],
+      cabs: ["UberX","Ola Prime","Meru Cab","Savaari","Local Taxi","CityCab","Airport Shuttle"],
+      hotels: ["Taj Palace","The Oberoi","Leela Palace","ITC Maurya","Hyatt Regency","Marriott Hotel","Shangri-La"]
+    };
+
+    const IMAGES = {
+      flights: [
+        "https://images.unsplash.com/photo-1511919884226-e4c2f0faa1f4?auto=format&fit=crop&w=1280&q=80",
+        "https://images.unsplash.com/photo-1529068755536-a5ade0b6b6e2?auto=format&fit=crop&w=1280&q=80"
+      ],
+      trains: [
+        "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1280&q=80",
+        "https://images.unsplash.com/photo-1549366029-8f6a0f3b5e9e?auto=format&fit=crop&w=1280&q=80"
+      ],
+      places: [
+        "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1280&q=80",
+        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1280&q=80",
+        "https://images.unsplash.com/photo-1504198266280-5f1b0ad5cedf?auto=format&fit=crop&w=1280&q=80"
+      ]
+    };
+
+    /* ====== localStorage helpers ====== */
+    function setUser(u){ localStorage.setItem('lux_user', JSON.stringify(u)); }
+    function getUser(){ return JSON.parse(localStorage.getItem('lux_user') || 'null'); }
+    function clearUser(){ localStorage.removeItem('lux_user'); }
+    function saveBooking(b){ const arr = JSON.parse(localStorage.getItem('lux_bookings') || '[]'); arr.unshift(b); localStorage.setItem('lux_bookings', JSON.stringify(arr)); }
+    function getBookings(){ return JSON.parse(localStorage.getItem('lux_bookings') || '[]'); }
+
+    /* ====== Auth flow ====== */
+    const pageAuth = $('#page-auth');
+    const pageApp = $('#page-app');
+    $('#signinBtn').addEventListener('click', ()=> {
+      const name = $('#fullName').value.trim();
+      const phone = $('#phone').value.trim();
+      const email = $('#emailIn').value.trim();
+      const pw = $('#passIn').value;
+      if(!name || !phone || !email || !pw){ alert('Please fill all fields'); return; }
+      const user = {name, phone, email};
+      setUser(user);
+      showApp(user);
+    });
+    $('#demoBtn').addEventListener('click', ()=> {
+      const demo = {name:'Demo User', phone:'+91 90000 00000', email:'demo@luxtravel.test'};
+      setUser(demo);
+      showApp(demo);
+    });
+    $('#signOut').addEventListener('click', ()=> {
+      clearUser();
+      pageApp.style.display='none';
+      pageAuth.style.display='flex';
+      $('#results').innerHTML = '';
+    });
+    window.addEventListener('load', ()=> {
+      const u = getUser();
+      if(u) showApp(u);
+      prefillDates();
+    });
+    function showApp(user){
+      pageAuth.style.display='none';
+      pageApp.style.display='block';
+      $('#userName').textContent = user.name.split(' ')[0];
+      $('#userEmail').textContent = user.email;
+      $('#welcomeCard').textContent = `${user.name} • ${user.phone} • ${user.email}`;
+      setActiveService('flights');
+      prefillDates();
+    }
+
+    /* ====== Tabs & forms (no auto-search) ====== */
+    const tabs = $$('#serviceTabs .tab');
+    const forms = {
+      flights: $('#form-flights'),
+      trains: $('#form-trains'),
+      buses: $('#form-buses'),
+      cabs: $('#form-cabs'),
+      hotels: $('#form-hotels')
+    };
+    let activeService = 'flights';
+    function setActiveService(s){
+      activeService = s;
+      tabs.forEach(t => t.classList.toggle('active', t.dataset.service === s));
+      Object.keys(forms).forEach(k => forms[k].style.display = (k === s ? 'block' : 'none'));
+      $('#resultsTitle').textContent = `Recommended — ${s[0].toUpperCase()+s.slice(1)}`;
+      $('#results').innerHTML = ''; // clear results until user searches
+      $('#resultsInfo').textContent = 'Search to load curated results (6)';
+    }
+    tabs.forEach(t => t.addEventListener('click', ()=> setActiveService(t.dataset.service)));
+
+    /* ====== Search handler: only when user clicks Search ====== */
+    document.addEventListener('click', (e)=> {
+      const btn = e.target.closest('[data-service]');
+      if(!btn) return;
+      const svc = btn.dataset.service;
+      let ok = true, inputs = {};
+      // validate per service
+      if(svc === 'flights'){
+        inputs.from = $('#flightFrom').value.trim();
+        inputs.to = $('#flightTo').value.trim();
+        inputs.date = $('#flightDate').value;
+        if(!inputs.from || !inputs.to || !inputs.date){ ok=false; alert('Please fill From, To and Date'); }
+      } else if(svc === 'trains'){
+        inputs.from = $('#trainFrom').value.trim();
+        inputs.to = $('#trainTo').value.trim();
+        inputs.date = $('#trainDate').value;
+        if(!inputs.from || !inputs.to || !inputs.date){ ok=false; alert('Please fill From, To and Date'); }
+      } else if(svc === 'buses'){
+        inputs.from = $('#busFrom').value.trim();
+        inputs.to = $('#busTo').value.trim();
+        inputs.date = $('#busDate').value;
+        if(!inputs.from || !inputs.to || !inputs.date){ ok=false; alert('Please fill From, To and Date'); }
+      } else if(svc === 'cabs'){
+        inputs.city = $('#cabCity').value.trim();
+        inputs.date = $('#cabDate').value;
+        inputs.time = $('#cabTime').value;
+        if(!inputs.city || !inputs.date || !inputs.time){ ok=false; alert('Please fill City, Date and Time'); }
+      } else if(svc === 'hotels'){
+        inputs.city = $('#hotelCity').value.trim();
+        inputs.checkin = $('#hotelCheckin').value;
+        inputs.checkout = $('#hotelCheckout').value;
+        if(!inputs.city || !inputs.checkin || !inputs.checkout){ ok=false; alert('Please fill City and Check-in/Check-out'); }
+      }
+      if(!ok) return;
+
+      // produce 6 curated results only after search click
+      $('#results').innerHTML = `<div class="muted-sm">Searching curated options...</div>`;
+      setTimeout(()=> {
+        const items = generateResultsFor(svc, inputs);
+        renderResults(items, svc);
+      }, 350);
+    });
+
+    function generateResultsFor(service, inputs){
+      const names = NAMES[service];
+      const items = [];
+      const basePrice = {flights:3500,trains:800,buses:600,cabs:400,hotels:6000}[service] || 1000;
+      for(let i=0;i<6;i++){
+        const title = names[(i + Math.floor(Math.random()*names.length)) % names.length];
+        const price = basePrice + Math.floor(Math.random()*1500) + i*120;
+        const img = (service==='flights') ? IMAGES.flights[i % IMAGES.flights.length]
+                  : (service==='trains') ? IMAGES.trains[i % IMAGES.trains.length]
+                  : IMAGES.places[i % IMAGES.places.length];
+        const meta = service==='hotels' ? `${inputs.city} • 4★` : service==='cabs' ? `${inputs.city} • Pickup ${inputs.time || ''}` : `${inputs.from || inputs.city || ''} → ${inputs.to || ''} • ${inputs.date || inputs.checkin || ''}`;
+        items.push({id:`${service}-${Date.now()}-${i}`, title, price, img, meta});
+      }
+      return items;
+    }
+
+    /* ====== Render results ====== */
+    function renderResults(items, service){
+      const container = $('#results');
+      container.innerHTML = '';
+      items.forEach(it=>{
+        const div = document.createElement('div');
+        div.className = 'result';
+        div.innerHTML = `
+          <img src="${it.img}" alt="${it.title}">
+          <div class="result-body">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div style="font-weight:800">${it.title}</div>
+              <div class="price">₹ ${it.price.toLocaleString()}</div>
+            </div>
+            <div class="meta">${it.meta}</div>
+            <div class="actions">
+              <button class="btn ghost details" data-id="${it.id}">Details</button>
+              <button class="btn primary book" data-id="${it.id}" data-service="${service}">Book</button>
+            </div>
+          </div>
+        `;
+        container.appendChild(div);
+
+        div.querySelector('.details').addEventListener('click', ()=> {
+          alert(`${it.title}\n\n${it.meta}\nPrice: ₹ ${it.price}`);
+        });
+
+        div.querySelector('.book').addEventListener('click', ()=> openBookingModal(service, it));
+      });
+      $('#resultsInfo').textContent = 'Showing 6 curated results';
+      // scroll into view smoothly
+      setTimeout(()=> { container.scrollIntoView({behavior:'smooth', block:'start'}); }, 50);
+    }
+
+    /* ====== Booking modal ====== */
+    const modal = $('#modal'), modalBody = $('#modalBody');
+    let currentBooking = null;
+    function openBookingModal(service, item){
+      currentBooking = {service, item, user:getUser()};
+      $('#modalTitle').textContent = `Book — ${item.title}`;
+      modalBody.innerHTML = `
+        <p style="margin:0 0 8px"><strong>${item.title}</strong></p>
+        <p class="muted-sm">${item.meta}</p>
+        <p class="price">₹ ${item.price.toLocaleString()}</p>
+        <hr/>
+        <label class="muted-sm">Passenger Name</label>
+        <input id="passName" type="text" value="${currentBooking.user ? currentBooking.user.name : ''}" style="width:100%;padding:8px;border-radius:6px;border:1px solid #eee"/>
+        <label class="muted-sm">Contact</label>
+        <input id="passContact" type="text" value="${currentBooking.user ? currentBooking.user.phone : ''}" style="width:100%;padding:8px;border-radius:6px;border:1px solid #eee"/>
+        <label class="muted-sm">Notes (optional)</label>
+        <input id="passNotes" type="text" placeholder="Any preferences?" style="width:100%;padding:8px;border-radius:6px;border:1px solid #eee"/>
+      `;
+      modal.classList.add('show');
+    }
+
+    $('#cancelBtn').addEventListener('click', ()=> { modal.classList.remove('show'); currentBooking=null; });
+
+    $('#confirmBtn').addEventListener('click', ()=> {
+      if(!currentBooking) return;
+      const name = $('#passName').value.trim();
+      const contact = $('#passContact').value.trim();
+      if(!name || !contact){ alert('Please fill passenger name & contact'); return; }
+      const booking = {
+        id: 'LX' + Date.now().toString().slice(-8),
+        service: currentBooking.service,
+        item: currentBooking.item,
+        passenger: {name, contact},
+        notes: $('#passNotes').value.trim(),
+        createdAt: new Date().toISOString()
+      };
+      saveBooking(booking);
+      modalBody.innerHTML = `<p style="font-weight:800;color:green">Payment simulated — Successful ✅</p><p>Booking ID: <strong>${booking.id}</strong></p>`;
+      setTimeout(()=>{ modal.classList.remove('show'); alert('Booking confirmed — check My Bookings'); }, 700);
+    });
+
+    modal.addEventListener('click', (e)=> { if(e.target === modal){ modal.classList.remove('show'); currentBooking=null; } });
+
+    /* ====== Bookings panel ====== */
+    $('#openBookings').addEventListener('click', ()=> {
+      renderBookings();
+      $('#bookingsPanel').style.display = ($('#bookingsPanel').style.display === 'block') ? 'none' : 'block';
+    });
+    $('#closeBookings').addEventListener('click', ()=> $('#bookingsPanel').style.display = 'none');
+
+    function renderBookings(){
+      const arr = getBookings();
+      const list = $('#bookingsList');
+      list.innerHTML = '';
+      if(!arr.length){ list.innerHTML = '<div class="muted-sm">No bookings yet. Search and book to see them here.</div>'; return; }
+      arr.forEach(b => {
+        const el = document.createElement('div');
+        el.style.padding = '10px 0';
+        el.style.borderBottom = '1px dashed #eee';
+        el.innerHTML = `
+          <div style="display:flex;justify-content:space-between">
+            <div style="font-weight:700">${b.item.title}</div>
+            <div class="muted-sm">${b.service}</div>
+          </div>
+          <div class="muted-sm">${new Date(b.createdAt).toLocaleString()}</div>
+          <div>Passenger: ${b.passenger.name} • ${b.passenger.contact}</div>
+          <div class="muted-sm">ID: ${b.id}</div>
+        `;
+        list.appendChild(el);
+      });
+    }
+
+    /* ====== Utilities ====== */
+    function prefillDates(){
+      const tomorrow = new Date(Date.now() + 24*3600*1000).toISOString().slice(0,10);
+      const plus2 = new Date(Date.now() + 2*24*3600*1000).toISOString().slice(0,10);
+      if($('#flightDate')) $('#flightDate').value = tomorrow;
+      if($('#trainDate')) $('#trainDate').value = tomorrow;
+      if($('#busDate')) $('#busDate').value = tomorrow;
+      if($('#cabDate')) $('#cabDate').value = tomorrow;
+      if($('#hotelCheckin')) $('#hotelCheckin').value = tomorrow;
+      if($('#hotelCheckout')) $('#hotelCheckout').value = plus2;
+    }
+
+    // enter triggers current visible form search
+    document.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter'){
+        const visibleForm = Object.values(forms).find(f=>f && f.style.display !== 'none');
+        if(visibleForm){
+          const btn = visibleForm.querySelector('[data-service]');
+          if(btn) btn.click();
+        }
+      }
+    });
+
+    /* expose small API for debugging */
+    window.LuxTravel = { setActiveService, getBookings, getUser };
+
+    // initial state
+    setActiveService('flights');
+    prefillDates();
+  </script>
+</body>
+</html>
+
+

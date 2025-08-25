@@ -1,0 +1,5 @@
+{
+  "name": "EduGuide Generator",
+  "description": "An AI-powered tool that transforms a syllabus outline or topic into a well-structured and referenced study guide or blog post, allowing students to customize the tone, depth, and structure.",
+  "requestFramePermissions": []
+}
